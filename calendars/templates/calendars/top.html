@@ -1,0 +1,117 @@
+{% load static %}
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>カレンダー</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'calendars/style.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <h1>TY.Engineer</h1>
+        </div>
+        <div class="header-right">
+            <button class="form-btn" id="show-form-btn">追加</button>
+            <div class="logout-btn">
+                <a href="{% url 'logout' %}" id="logout"><span>ログアウト</span></a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="number-btn-wrapper">
+            <div class="number-btn">1</div>
+            <div class="number-btn">2</div>
+            <div class="number-btn">3</div>
+            <div class="number-btn">4</div>
+            <div class="number-btn">5</div>
+            <div class="number-btn">6</div>
+            <div class="number-btn">7</div>
+            <div class="number-btn">8</div>
+            <div class="number-btn">9</div>
+            <div class="number-btn">10</div>
+            <div class="number-btn">11</div>
+            <div class="number-btn">12</div>
+        </div>
+        {% load boost %}
+        <div class="slides-wrapper">
+            <ul class="slides">
+                {% for month_data_element, data in month_data|zip:set_of_data %}
+                    <li class="slide slide-{{ forloop.counter }}">
+                        <div class="calendar-wrapper">
+                            <div class="calendar-top">
+                                <h2 class='month-number'>{{ forloop.counter }}</h2>
+                                <div class='change-btn-wrapper'>
+                                    <div class='change-btn prev-btn'>↑先月</div>
+                                    <div class='change-btn next-btn'>来月↓</div>
+                                </div>
+                            </div>
+                            <div class='calendar-main'>
+                                <p class='calendar-head sunday-head'>日</p>
+                                <p class='calendar-head'>月</p>
+                                <p class='calendar-head'>火</p>
+                                <p class='calendar-head'>水</p>
+                                <p class='calendar-head'>木</p>
+                                <p class='calendar-head'>金</p>
+                                <p class='calendar-head saturday-head'>土</p>
+                                {% for i in month_data_element.first_space %}
+                                    <div class="day-wrapper"></div>
+                                {% endfor %}
+                                {% for i in month_data_element.day_number %}
+                                    <div class="day-wrapper">
+                                        <h3 class="day-view">{{ i }}</h3>
+                                        <div class="data-in-calendar-list">
+                                            <ul>
+                                            {% for element in data %}
+                                            {% if element.day == i %} 
+                                                <li class="data-in-calendar" id={{ element.id }}>
+                                                    <p class="time-data-in-calendar">{{ element.hour }}時{{ element.minute }}分：</p>
+                                                    <p class="title-data-in-calendar">{% if element.title|length > 7 %}{{ element.title|slice:":6" }}⋯{% else %}{{ element.title }}{% endif %}</p>
+                                                </li>
+                                            {% endif %}
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div> 
+                                {% endfor %}
+                            </div>  
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="details-wrapper">
+            <ul>
+                {% for data in set_of_data %}
+                {% for element in data %}
+                <li class="data-details" id="data-details-{{ element.id }}">
+                    <div>
+                        <p class="details-day">{{ element.month }}/{{ element.day }}</p>
+                        <p class="details-time">{{ element.hour }}時{{ element.minute }}分</p>
+                        <p class="details-title">{{ element.title }}</p>
+                        <p class="details-text">{{ element.text }}</p>
+                        <form method="POST" class="delete-btn">
+                            {% csrf_token %}
+                            <input type="hidden" name="delete_id" value="{{ element.id }}">
+                            <button type="submit">削除</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+                {% endfor %}
+            <ul>
+            <div class="form-view" id="form-container">
+                <form method="post">
+                    <p class="hide-btn">×</p>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" value="登録">登録</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript" src="{% static 'calendars/script.js' %}"></script>
+</body>
+</html>
